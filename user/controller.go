@@ -24,7 +24,3 @@ func (b *BaseHandler) User(w http.ResponseWriter, r *http.Request, ps httprouter
 	println(user.CheckLimitBan())
 	w.Write(res)
 }
-
-func (b *BaseHandler) Scrap(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-
-}
