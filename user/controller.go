@@ -2,6 +2,7 @@ package user
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
@@ -21,6 +22,23 @@ func (b *BaseHandler) User(w http.ResponseWriter, r *http.Request, ps httprouter
 	id, _ := strconv.Atoi(ps.ByName("id"))
 	user, _ := b.userRepo.FindByID(id)
 	res, _ := json.Marshal(&user)
-	println(user.CheckLimitBan())
-	w.Write(res)
+
+	if user.ID == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"status": "error", "msg": "not found"}`))
+	} else {
+		w.Write(res)
+	}
+}
+
+func (b *BaseHandler) CreateUser(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	decoder := json.NewDecoder(request.Body)
+	user := User{}
+
+	decoder.Decode(&user)
+	fmt.Println(user)
+	b.userRepo.HashPassword(&user)
+
+	b.userRepo.Save(user)
+	writer.Write([]byte(`{"status": "ok", "msg": "user created"}`))
 }

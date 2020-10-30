@@ -1,5 +1,7 @@
 package user
 
+import "github.com/dgrijalva/jwt-go"
+
 const (
 	FREE       = "free"
 	BASE       = "base"
@@ -13,10 +15,10 @@ type Repository interface {
 }
 
 type User struct {
+	jwt.StandardClaims
 	ID       int    `db:"id" json:"id"`
 	Email    string `db:"email" json:"email"`
 	Password string `db:"password" json:"-"`
-	Token    string `db:"token" json:"token"`
 	Tariff   string `db:"tariff" json:"tariff"`
 	Requests int    `db:"requests" json:"requests"`
 }
