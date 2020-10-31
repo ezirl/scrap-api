@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -29,12 +30,36 @@ func (b *BaseHandler) Scrap(w http.ResponseWriter, r *http.Request, ps httproute
 	params := r.URL.Query()
 	clientUrl := params["url"][0]
 
+	var timeout int
+	if params["timeout"] == nil {
+		timeout = 60
+	} else {
+		tint, err := strconv.Atoi(params["timeout"][0])
+		timeout = tint
+		if err != nil || params["timeout"][0] == "0" {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"status": "error", "msg": "wrong timeout value"}`))
+			return
+		}
+	}
+
 	if !strings.Contains(clientUrl, "http") {
 		clientUrl = "http://" + clientUrl
 	}
 
+	httpProxy, err := b.getProxy(params)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"status": "error", "msg": "proxy not found"}`))
+		return
+	}
+
+	proxyStr := getProxyStr(httpProxy)
+
+	proxyUrl, _ := url.Parse(proxyStr)
+	println(proxyStr)
 	if params["render"] != nil {
-		res, err := utils.Render(clientUrl, r.Header.Clone())
+		res, err := utils.Render(clientUrl, r.Header.Clone(), httpProxy, time.Duration(timeout))
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte(`{"status": "error", "msg": "wrong url or url dont response"}`))
@@ -48,18 +73,10 @@ func (b *BaseHandler) Scrap(w http.ResponseWriter, r *http.Request, ps httproute
 	req.Header = r.Header.Clone()
 	req.Body = r.Body
 
-	httpProxy, err := b.getProxy(params)
-
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte(`{"status": "error", "msg": "proxy not found"}`))
-		return
-	}
-
-	proxyUrl, _ := url.Parse("http://"+httpProxy.Address)
 	client := http.Client{
 		Transport: &http.Transport{Proxy: http.ProxyURL(proxyUrl)},
-		Timeout: 60 * time.Second,
+		Timeout:   time.Duration(timeout) * time.Second,
+
 	}
 
 	res, err := client.Do(req)
@@ -72,6 +89,15 @@ func (b *BaseHandler) Scrap(w http.ResponseWriter, r *http.Request, ps httproute
 
 	body := encodingResult(res)
 	w.Write(body)
+}
+
+func getProxyStr(httpProxy *proxy.Proxy) string {
+	proxyStr := "http://"
+	if httpProxy.Login != "" && httpProxy.Password != "" {
+		proxyStr += httpProxy.Login + ":" + httpProxy.Password + "@"
+	}
+	proxyStr += httpProxy.Address + ":" + strconv.Itoa(httpProxy.Port)
+	return proxyStr
 }
 
 func (b *BaseHandler) getProxy(params url.Values) (*proxy.Proxy, error) {
