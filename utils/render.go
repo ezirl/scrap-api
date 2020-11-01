@@ -8,7 +8,6 @@ import (
 	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -25,7 +24,7 @@ func Render(url string, header http.Header, proxy *proxy.Proxy, timeout time.Dur
 
 	o := append(chromedp.DefaultExecAllocatorOptions[:],
 		//... any options here
-		chromedp.ProxyServer(proxy.Address+":"+strconv.Itoa(proxy.Port)),
+		chromedp.ProxyServer(proxy.Address+":"+proxy.Port),
 	)
 
 	cx, cancel := chromedp.NewExecAllocator(context.Background(), o...)

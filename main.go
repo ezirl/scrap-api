@@ -9,6 +9,9 @@ import (
 	"net/http"
 )
 
+var authUser = "kosmos"
+var authPassword = "AbubuAeAkak322"
+
 func main() {
 	db := sqldb.ConnectDB()
 
@@ -17,9 +20,14 @@ func main() {
 
 	// controllers
 	scrapHandler := scrap.NewBaseHandler(proxyRepo)
+	proxyHandler := proxy.NewBaseHandler(proxyRepo)
 
 	// routers
 	router := httprouter.New()
+	router.GET("/proxies", BasicAuth(proxyHandler.GetProxies, authUser, authPassword))
+	router.POST("/proxy/create", BasicAuth(proxyHandler.CreateProxy, authUser, authPassword))
+	router.GET("/proxy/:id/delete", BasicAuth(proxyHandler.DeleteProxy, authUser, authPassword))
+
 	router.GET("/", scrapHandler.Scrap)
 	router.POST("/", scrapHandler.Scrap)
 	router.PUT("/", scrapHandler.Scrap)
@@ -30,3 +38,4 @@ func main() {
 
 	log.Fatal(http.ListenAndServe(":8090", router))
 }
+

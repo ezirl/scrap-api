@@ -28,6 +28,11 @@ func NewBaseHandler(proxyRepo proxy.Repo) *BaseHandler {
 
 func (b *BaseHandler) Scrap(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	params := r.URL.Query()
+	if _, ok := params["url"]; !ok {
+		w.Write([]byte(`{"status": "ok", "msg": "api work"}`))
+		return
+	}
+
 	clientUrl := params["url"][0]
 
 	var timeout int
@@ -76,7 +81,6 @@ func (b *BaseHandler) Scrap(w http.ResponseWriter, r *http.Request, ps httproute
 	client := http.Client{
 		Transport: &http.Transport{Proxy: http.ProxyURL(proxyUrl)},
 		Timeout:   time.Duration(timeout) * time.Second,
-
 	}
 
 	res, err := client.Do(req)
@@ -92,11 +96,11 @@ func (b *BaseHandler) Scrap(w http.ResponseWriter, r *http.Request, ps httproute
 }
 
 func getProxyStr(httpProxy *proxy.Proxy) string {
-	proxyStr := "http://"
+	proxyStr := httpProxy.Type + "://"
 	if httpProxy.Login != "" && httpProxy.Password != "" {
 		proxyStr += httpProxy.Login + ":" + httpProxy.Password + "@"
 	}
-	proxyStr += httpProxy.Address + ":" + strconv.Itoa(httpProxy.Port)
+	proxyStr += httpProxy.Address + ":" + httpProxy.Port
 	return proxyStr
 }
 
