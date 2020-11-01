@@ -3,8 +3,8 @@
     <h1>Proxy CRUD</h1>
     <select v-model="form.type">
       <option value="http">http</option>
-      <option value="http">sock4</option>
-      <option value="http">sock5</option>
+      <option value="sock4">sock4</option>
+      <option value="sock5">sock5</option>
     </select>
     <input size="40" v-model="form.address" type="text" placeholder="login:password@address:port">
     <input size="20" v-model="form.country" type="text" placeholder="ru,ua,de,us,uk etc" maxlength="3"
@@ -15,7 +15,7 @@
       <tr>
         <th>id</th>
         <th>type</th>
-        <th>address</th>
+        <th style="min-width: 250px">address</th>
         <th>port</th>
         <th>login</th>
         <th>password</th>
