@@ -6,5 +6,6 @@ CREATE TABLE proxy
     port     int          not null,
     address  varchar(255) not null,
     country  varchar(5) default 'none',
-    premium  bool default false
+    premium  bool default false,
+    type varchar(10) default 'http'
 )
