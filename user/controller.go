@@ -18,6 +18,12 @@ func NewBaseHandler(userRepo Repo) *BaseHandler {
 	}
 }
 
+func (b *BaseHandler) GetUsers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	users, _ := b.userRepo.All(10)
+	res, _ := json.Marshal(&users)
+	w.Write(res)
+}
+
 func (b *BaseHandler) User(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	id, _ := strconv.Atoi(ps.ByName("id"))
 	user, _ := b.userRepo.FindByID(id)

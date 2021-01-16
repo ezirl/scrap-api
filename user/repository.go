@@ -14,8 +14,8 @@ func NewRepo(db *sql.DB) Repo {
 }
 
 func (r *Repo) Save(user User) error {
-	_, err := r.db.Exec("INSERT INTO user (email, password) VALUES (?,?)",
-		user.Email, user.Password)
+	_, err := r.db.Exec("INSERT INTO user (email, password, token) VALUES (?,?,?)",
+		user.Email, user.Password, user.Token)
 	return err
 }
 
@@ -23,16 +23,30 @@ func (r *Repo) FindByID(ID int) (*User, error) {
 	row := r.db.QueryRow("SELECT * FROM user where id = ?", ID)
 
 	user := User{}
-	_ = row.Scan(&user.ID, &user.Email, &user.Password, &user.Tariff, &user.Requests)
+	_ = row.Scan(&user.ID, &user.Email, &user.Password, &user.Token, &user.Tariff, &user.Requests)
 
 	return &user, nil
+}
+
+func (r *Repo) All(limit int64) (*[]User, error) {
+	row, _ := r.db.Query("SELECT * FROM user LIMIT ?", limit)
+
+	var users []User
+
+	for row.Next() {
+		var user User
+		_ = row.Scan(&user.ID, &user.Email, &user.Password, &user.Token, &user.Tariff, &user.Requests)
+		users = append(users, user)
+	}
+
+	return &users, nil
 }
 
 func (r *Repo) FindByToken(token string) (*User, error) {
 	row := r.db.QueryRow("SELECT * FROM user where token = ?", token)
 
 	user := User{}
-	_ = row.Scan(&user.ID, &user.Email, &user.Password, &user.Tariff, &user.Requests)
+	_ = row.Scan(&user.ID, &user.Email, &user.Password, &user.Token, &user.Tariff, &user.Requests)
 
 	return &user, nil
 }

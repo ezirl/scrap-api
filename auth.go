@@ -19,8 +19,10 @@ func Login(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 }
 
-func BasicAuth(h httprouter.Handle, requiredUser, requiredPassword string) httprouter.Handle {
+func BasicAuth(h httprouter.Handle, requiredUser string, requiredPassword string) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		// Get the Basic Authentication credentials
 		user, password, hasAuth := r.BasicAuth()
 

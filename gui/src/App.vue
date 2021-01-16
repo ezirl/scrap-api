@@ -1,5 +1,35 @@
 <template>
   <div id="app">
+    <h1>Last api calls</h1>
+    <table>
+      <tr>
+        <th>user.id</th>
+        <th>user.email</th>
+        <th>user.token</th>
+        <th>user.requests</th>
+      </tr>
+      <tr v-for="user in users" :key="user.id">
+        <td>{{ user.id }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.token }}</td>
+        <td>{{ user.requests }}</td>
+      </tr>
+    </table>
+    <hr>
+    <table>
+      <tr>
+        <th>id</th>
+        <th>url</th>
+        <th>user</th>
+      </tr>
+      <tr v-for="call in calls" v-bind:key="call.id">
+        <td>{{ call.id }}</td>
+        <td><a :href="call.url" :title="call.url" target="_blank">link</a></td>
+        <td>{{ call.user.email }}</td>
+      </tr>
+    </table>
+    <hr>
+
     <h1>Proxy CRUD</h1>
     <select v-model="form.type">
       <option value="http">http</option>
@@ -44,6 +74,8 @@ export default {
     return {
       auth: false,
       proxies: null,
+      calls: null,
+      users: null,
       form: {
         type: 'http',
         address: null,
@@ -69,13 +101,13 @@ export default {
       let port = proxy[1]
 
       console.log(this.$data.form.country,
-           this.$data.form.type,
-           login,
-           password,
-           address,
+          this.$data.form.type,
+          login,
+          password,
+          address,
           port,)
 
-      const res = await fetch(`/api/proxy/create`, {
+      const res = await fetch(`http://localhost:8090/proxy/create`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -99,7 +131,7 @@ export default {
 
     },
     async rmProxy(id) {
-      const res = await fetch(`/api/proxy/${id}/delete`, {
+      const res = await fetch(`http://localhost:8090/proxy/${id}/delete`, {
         method: 'GET',
         credentials: 'include'
       })
@@ -111,7 +143,7 @@ export default {
     },
 
     async updateProxies() {
-      const res = await fetch('/api/proxies', {
+      const res = await fetch('http://localhost:8090/proxies', {
         method: 'GET',
         credentials: 'include'
       })
@@ -120,10 +152,25 @@ export default {
         return
       }
       this.$data.proxies = await res.json()
+    },
+
+    async getCalls() {
+      const res = await fetch('http://localhost:8090/calls', {
+        method: 'GET',
+        credentials: 'include'
+      })
+      this.$data.calls = await res.json()
+
+      const users = await fetch('http://localhost:8090/users', {
+        method: 'GET',
+        credentials: 'include'
+      })
+      this.$data.users = await users.json()
     }
   },
   async mounted() {
     await this.updateProxies()
+    await this.getCalls()
   }
 }
 </script>
