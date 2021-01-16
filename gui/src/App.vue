@@ -107,7 +107,7 @@ export default {
           address,
           port,)
 
-      const res = await fetch(`http://localhost:8090/proxy/create`, {
+      const res = await fetch(`/api/proxy/create`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -131,7 +131,7 @@ export default {
 
     },
     async rmProxy(id) {
-      const res = await fetch(`http://localhost:8090/proxy/${id}/delete`, {
+      const res = await fetch(`/api/proxy/${id}/delete`, {
         method: 'GET',
         credentials: 'include'
       })
@@ -143,7 +143,7 @@ export default {
     },
 
     async updateProxies() {
-      const res = await fetch('http://localhost:8090/proxies', {
+      const res = await fetch('/api/proxies', {
         method: 'GET',
         credentials: 'include'
       })
@@ -155,13 +155,13 @@ export default {
     },
 
     async getCalls() {
-      const res = await fetch('http://localhost:8090/calls', {
+      const res = await fetch('/api/calls', {
         method: 'GET',
         credentials: 'include'
       })
       this.$data.calls = await res.json()
 
-      const users = await fetch('http://localhost:8090/users', {
+      const users = await fetch('/api/users', {
         method: 'GET',
         credentials: 'include'
       })
