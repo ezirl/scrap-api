@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"database/sql"
+	"log"
 )
 
 type Repo struct {
@@ -26,7 +27,11 @@ func (r *Repo) Delete(id int) error {
 }
 
 func (r *Repo) All() (*[]Proxy, error) {
-	row, _ := r.db.Query("SELECT * FROM proxy")
+	row, err := r.db.Query("SELECT * FROM proxy")
+	if err != nil {
+		log.Println(err)
+		return nil, nil
+	}
 
 	var proxies []Proxy
 	for row.Next() {
