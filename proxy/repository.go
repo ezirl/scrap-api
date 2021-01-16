@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 )
 
@@ -27,9 +28,10 @@ func (r *Repo) Delete(id int) error {
 }
 
 func (r *Repo) All() (*[]Proxy, error) {
+	fmt.Println(r.db)
 	row, err := r.db.Query("SELECT * FROM proxy")
 	if err != nil {
-		log.Println(err)
+		log.Println(err.Error())
 		return nil, nil
 	}
 
